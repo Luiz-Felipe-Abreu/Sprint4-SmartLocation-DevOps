@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestão de Motos - Zoog</title>    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --secondary-color: #64748b;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --dark-color: #1e293b;
+            --light-color: #f8fafc;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+          .navbar-modern {
+            background: rgba(255, 255, 255, 0.95) !important;
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.5rem;
+            color: var(--primary-color) !important;
+        }
+        
+        .nav-link {
+            color: var(--dark-color) !important;
+            font-weight: 500;
+            margin: 0 0.5rem;
+            padding: 0.5rem 1rem !important;
+            border-radius: 8px;
+        }
+        
+        .nav-link:hover {
+            background: rgba(37, 99, 235, 0.1);
+            color: var(--primary-color) !important;
+        }
+        
+        .logout-btn {
+            color: var(--dark-color) !important;
+            font-weight: 500;
+            margin: 0 0.5rem;
+            padding: 0.5rem 1rem !important;
+            border-radius: 8px;
+            background: none !important;
+            border: none !important;
+            text-decoration: none !important;
+        }
+        
+        .logout-btn:hover {
+            background: rgba(239, 68, 68, 0.1) !important;
+            color: var(--danger-color) !important;
+        }
+        
+        .user-avatar {
+            border: 2px solid rgba(37, 99, 235, 0.3);
+            transition: border-color 0.3s ease;
+        }
+        
+        .user-info:hover .user-avatar {
+            border-color: var(--primary-color);
+        }
+        
+        .main-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: none;
+            border-radius: 20px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            overflow: hidden;
+        }
+        
+        .header-section {
+            background: linear-gradient(135deg, var(--primary-color), #3b82f6);
+            color: white;
+            padding: 2rem;
+            margin: -1.5rem -1.5rem 2rem -1.5rem;
+        }
+        
+        .stats-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 1.5rem;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .filter-btn {
+            border-radius: 25px;
+            padding: 0.5rem 1.5rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+  
+        
+        .filter-btn.active {
+            background: white;
+            color: var(--primary-color);
+            border-color: white;
+        }
+        
+        .table-modern {
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        
+        .table-modern thead {
+            background: linear-gradient(135deg, var(--dark-color), #334155);
+            color: white;
+        }
+        
+        .table-modern thead th {
+            border: none;
+            padding: 1.25rem;
+            font-weight: 600;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .table-modern tbody tr {
+            background: white;
+            transition: all 0.3s ease;
+        }
+          .table-modern tbody tr:hover {
+            background: rgba(37, 99, 235, 0.05);
+        }
+        
+        .table-modern tbody td {
+            padding: 1.25rem;
+            border: none;
+            vertical-align: middle;
+        }
+        
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+            font-weight: 600;
+            font-size: 0.875rem;
+        }
+        
+        .status-disponivel { 
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+        }
+          .status-em_uso { 
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: white;
+        }
+        
+        .status-manutencao { 
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
+        }
+        
+        .btn-modern {
+            border-radius: 12px;
+            padding: 0.5rem 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+          .btn-modern:hover {
+            text-decoration: none;
+        }
+        
+        .btn-primary-modern {
+            background: linear-gradient(135deg, var(--primary-color), #3b82f6);
+            color: white;
+            box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.3);
+        }
+        
+        .btn-warning-modern {
+            background: linear-gradient(135deg, var(--warning-color), #d97706);
+            color: white;
+        }
+        
+        .btn-danger-modern {
+            background: linear-gradient(135deg, var(--danger-color), #dc2626);
+            color: white;
+        }
+        
+        .btn-info-modern {
+            background: linear-gradient(135deg, #06b6d4, #0891b2);
+            color: white;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: var(--secondary-color);
+        }
+        
+        .empty-state i {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+  
+        
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        
+        @media (max-width: 768px) {
+            .action-buttons {
+                flex-direction: column;
+            }
+            
+            .header-section {
+                padding: 1.5rem;
+                margin: -1rem -1rem 1.5rem -1rem;
+            }
+            
+            .table-responsive {
+                border-radius: 15px;
+            }
+        }
+    </style>
+</head>
+<body>    <nav class="navbar navbar-expand-lg navbar-modern">
+        <div class="container">
+            <a class="navbar-brand" href="/">ZOOG</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <div class="navbar-nav ms-auto">
+                    <a class="nav-link" href="/">Painel</a>
+                    <a class="nav-link active" href="/motos">Gestão de Motos</a>
+                    <a class="nav-link" href="/usuario">Perfil</a>
+                    <a class="nav-link" href="/sobre">Sobre</a>
+                    
+                    <!-- Avatar do usuário GitHub (se logado via OAuth2) -->
+                    <div th:if="${userAvatar}" class="nav-link d-flex align-items-center user-info">
+                        <img th:src="${userAvatar}" 
+                             th:alt="${userName}" 
+                             class="rounded-circle me-2 user-avatar" 
+                             style="width: 32px; height: 32px;">
+                        <span th:text="${userName ?: userLogin}" class="text-truncate" style="max-width: 100px;"></span>
+                    </div>
+                    
+                    <!-- Botão de logout -->
+                    <form th:action="@{/logout}" method="post" class="d-inline">
+                        <button type="submit" class="logout-btn">Sair</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </nav><div class="container mt-5">
+        <!-- Mensagem de sucesso -->
+        <div th:if="${param.sucesso}" class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle me-2"></i>
+            <strong>Sucesso!</strong> Moto salva com sucesso no sistema.
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        
+        <div class="main-card">
+            <div class="header-section">
+                <div class="d-flex justify-content-between align-items-center flex-wrap">                    <div>
+                        <h1 class="h2 mb-2">Gestão de Motos</h1>
+                        <p class="mb-0 opacity-75">Gerencie todas as motocicletas da frota Zoog</p>
+                    </div>
+                    <div class="d-flex gap-2 mt-3 mt-md-0">
+                        <a href="/motos/new" class="btn btn-light btn-modern">
+                            <i class="fas fa-plus"></i>
+                            Adicionar Moto
+                        </a>
+                        <button class="btn btn-outline-light btn-modern" onclick="window.location.reload()">
+                            <i class="fas fa-sync-alt"></i>
+                            Atualizar
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filtros -->
+            <div class="px-4 mb-4">
+                <h6 class="text-muted mb-3">
+                    <i class="fas fa-filter me-2"></i>
+                    Filtrar por status
+                </h6>
+                <div class="d-flex flex-wrap gap-2">
+                    <a href="/motos" class="btn btn-outline-primary filter-btn">
+                        <i class="fas fa-list"></i>
+                        Todas
+                    </a>
+                    <a href="/motos?status=DISPONIVEL" class="btn btn-outline-success filter-btn">
+                        <i class="fas fa-check-circle"></i>
+                        Disponíveis
+                    </a>
+                    <a href="/motos?status=EM_USO" class="btn btn-outline-warning filter-btn">
+                        <i class="fas fa-user"></i>
+                        Em Uso
+                    </a>
+                    <a href="/motos?status=MANUTENCAO" class="btn btn-outline-danger filter-btn">
+                        <i class="fas fa-tools"></i>
+                        Manutenção
+                    </a>
+                </div>
+            </div>
+            <div class="px-4 pb-4">
+                <div class="table-responsive">
+                    <table class="table table-modern">
+                        <thead>
+                            <tr>
+                                <th>
+                                    <i class="fas fa-motorcycle me-2"></i>
+                                    Modelo
+                                </th>
+                                <th>
+                                    <i class="fas fa-id-card me-2"></i>
+                                    Placa
+                                </th>
+                                <th>
+                                    <i class="fas fa-traffic-light me-2"></i>
+                                    Status
+                                </th>
+                                <th>
+                                    <i class="fas fa-calendar me-2"></i>
+                                    Cadastrado
+                                </th>
+                                <th>
+                                    <i class="fas fa-cogs me-2"></i>
+                                    Ações
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="moto : ${motos}">
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="bg-primary rounded-circle p-2 me-3" style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">
+                                            <i class="fas fa-motorcycle text-white"></i>
+                                        </div>
+                                        <div>
+                                            <strong th:text="${moto.modelo != null ? moto.modelo : '---'}">Honda CG 160</strong>
+                                            <div class="small text-muted" th:if="${moto.observacoes != null and !#strings.isEmpty(moto.observacoes)}" 
+                                                 th:text="${#strings.abbreviate(moto.observacoes, 30)}">Com observações</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="badge bg-secondary" style="font-size: 0.9rem; padding: 0.5rem 0.75rem;" 
+                                          th:text="${moto.placa != null ? moto.placa : '---'}">ABC-1234</span>
+                                </td>
+                                <td>
+                                    <span th:class="'status-badge status-' + ${#strings.toLowerCase(moto.status)}"
+                                          th:text="${moto.status != null ? moto.status : '---'}">DISPONIVEL</span>
+                                </td>
+                                <td>
+                                    <div class="small">
+                                        <i class="fas fa-clock text-muted me-1"></i>
+                                        <span th:text="${moto.createdAt != null ? #temporals.format(moto.createdAt, 'dd/MM/yyyy') : '---'}">24/09/2025</span>
+                                        <br>
+                                        <span class="text-muted" th:text="${moto.createdAt != null ? #temporals.format(moto.createdAt, 'HH:mm') : ''}">11:54</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <a th:href="@{/motos/edit/{id}(id=${moto.id})}" class="btn btn-warning-modern btn-modern btn-sm">
+                                            <i class="fas fa-edit"></i>
+                                            Editar
+                                        </a>
+                                        
+                                        <!-- Dropdown para mudar status -->
+                                        <div class="dropdown">
+                                            <button class="btn btn-info-modern btn-modern btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                                <i class="fas fa-exchange-alt"></i>
+                                                Status
+                                            </button>
+                                            <ul class="dropdown-menu">
+                                                <li>
+                                                    <form th:action="@{/motos/changeStatus/{id}(id=${moto.id})}" method="post" class="d-inline">
+                                                        <input type="hidden" name="newStatus" value="DISPONIVEL">
+                                                        <button type="submit" class="dropdown-item">
+                                                            <i class="fas fa-check-circle text-success me-2"></i>
+                                                            Disponível
+                                                        </button>
+                                                    </form>
+                                                </li>
+                                                <li>
+                                                    <form th:action="@{/motos/changeStatus/{id}(id=${moto.id})}" method="post" class="d-inline">
+                                                        <input type="hidden" name="newStatus" value="EM_USO">
+                                                        <button type="submit" class="dropdown-item">
+                                                            <i class="fas fa-user text-warning me-2"></i>
+                                                            Em Uso
+                                                        </button>
+                                                    </form>
+                                                </li>
+                                                <li>
+                                                    <form th:action="@{/motos/changeStatus/{id}(id=${moto.id})}" method="post" class="d-inline">
+                                                        <input type="hidden" name="newStatus" value="MANUTENCAO">
+                                                        <button type="submit" class="dropdown-item">
+                                                            <i class="fas fa-tools text-danger me-2"></i>
+                                                            Manutenção
+                                                        </button>
+                                                    </form>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                        
+                                        <a th:href="@{/motos/delete/{id}(id=${moto.id})}" 
+                                           class="btn btn-danger-modern btn-modern btn-sm"
+                                           onclick="return confirm('⚠️ Tem certeza que deseja excluir esta moto?\n\nEsta ação não pode ser desfeita.')">
+                                            <i class="fas fa-trash"></i>
+                                            Excluir
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Estado vazio -->
+                <div th:if="${#lists.isEmpty(motos)}" class="empty-state">
+                    <i class="fas fa-motorcycle"></i>
+                    <h4>Nenhuma moto encontrada</h4>
+                    <p class="mb-4">Que tal adicionar a primeira motocicleta à frota?</p>
+                    <a href="/motos/new" class="btn btn-primary-modern btn-modern">
+                        <i class="fas fa-plus"></i>
+                        Adicionar primeira moto
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Botão voltar -->
+        <div class="text-center mt-4">
+            <a href="/" class="btn btn-outline-light btn-modern">
+                <i class="fas fa-arrow-left"></i>
+                Voltar ao Painel
+            </a>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Animações e interatividade
+        document.addEventListener('DOMContentLoaded', function() {
+            // Highlight do filtro ativo
+            const currentUrl = window.location.href;
+            const filterButtons = document.querySelectorAll('.filter-btn');
+            
+            filterButtons.forEach(button => {
+                if (button.href === currentUrl) {
+                    button.classList.add('active');
+                }
+            });
+  
+            
+            // Confirmação personalizada para exclusão
+            const deleteButtons = document.querySelectorAll('a[onclick*="confirm"]');
+            deleteButtons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    const confirmed = confirm('⚠️ ATENÇÃO!\n\nTem certeza que deseja excluir esta moto?\nEsta ação não pode ser desfeita.\n\n✅ Sim, excluir\n❌ Cancelar');
+                    
+                    if (confirmed) {
+                        window.location.href = this.href;
+                    }
+                });
+            });
+            
+            // Feedback visual ao mudar status
+            const statusForms = document.querySelectorAll('form[action*="changeStatus"]');
+            statusForms.forEach(form => {
+                form.addEventListener('submit', function() {
+                    const button = this.querySelector('button[type="submit"]');
+                    const originalText = button.innerHTML;
+                    
+                    button.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Atualizando...';
+                    button.disabled = true;
+                    
+                    // Simular delay para feedback visual
+                    setTimeout(() => {
+                        button.innerHTML = originalText;
+                        button.disabled = false;
+                    }, 1000);
+                });
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Zoog</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --secondary-color: #64748b;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --dark-color: #1e293b;
+            --light-color: #f8fafc;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .login-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            box-shadow: 0 25px 45px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            width: 100%;
+            max-width: 420px;
+        }
+
+        .login-header {
+            background: linear-gradient(135deg, var(--primary-color), #3b82f6);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .login-body {
+            padding: 2rem;
+        }
+
+        .btn-github {
+            background: linear-gradient(135deg, #24292e, #4a5568);
+            border: none;
+            border-radius: 12px;
+            padding: 12px;
+            font-weight: 600;
+            width: 100%;
+            color: white;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+
+        .btn-github:hover {
+            background: linear-gradient(135deg, #1a1e22, #3a454f);
+            color: white;
+            text-decoration: none;
+        }
+
+        .error-message {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger-color);
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            margin-bottom: 1rem;
+            font-weight: 500;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="login-card">
+        <div class="login-header">
+            <h3 class="mb-0">🏍️ Zoog Login</h3>
+            <p class="mb-0 mt-2 opacity-75">Sistema de Gestão de Motos</p>
+        </div>
+        
+        <div class="login-body">
+            <!-- Mensagem de erro -->
+            <div th:if="${param.error}" class="error-message">
+                Usuário ou senha incorretos. Tente novamente.
+            </div>
+            
+            <!-- Mensagem de logout sucesso -->
+            <div th:if="${param.logout}" class="alert alert-success" style="background: rgba(16, 185, 129, 0.1); color: #10b981; padding: 12px; border-radius: 8px; border: 1px solid rgba(16, 185, 129, 0.2); margin-bottom: 1rem;">
+                Logout realizado com sucesso!
+            </div>
+
+            <!-- Login com GitHub -->
+            <a href="/oauth2/authorization/github" class="btn btn-github mb-3">
+                🐙 Entrar com GitHub
+            </a>
+            
+            <div class="text-center">
+                <small class="text-muted">
+                    <i class="fas fa-info-circle me-1"></i> 
+                    Use sua conta GitHub para acessar o sistema
+                </small>
+            </div>
+            
+            <div class="text-center mt-3">
+                <small class="text-muted">
+                    Seguro • Rápido • Confiável
+                </small>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Limpa dados de sessão quando há logout
+        if (window.location.search.includes('logout=true')) {
+            // Limpar localStorage e sessionStorage
+            localStorage.clear();
+            sessionStorage.clear();
+            
+            // Forçar limpeza de cache se possível
+            if ('caches' in window) {
+                caches.keys().then(function(names) {
+                    names.forEach(function(name) {
+                        caches.delete(name);
+                    });
+                });
+            }
+        }
+    </script>
+</body>
+</html>

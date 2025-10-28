@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zoog - Sistema de Gestão</title>    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --secondary-color: #64748b;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --dark-color: #1e293b;
+            --light-color: #f8fafc;
+        }
+          body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .navbar-modern {
+            background: rgba(255, 255, 255, 0.95) !important;
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.5rem;
+            color: var(--primary-color) !important;
+        }
+        
+        .nav-link {
+            color: var(--dark-color) !important;
+            font-weight: 500;
+            margin: 0 0.5rem;
+            padding: 0.5rem 1rem !important;
+            border-radius: 8px;
+        }
+        
+        .nav-link:hover {
+            background: rgba(37, 99, 235, 0.1);
+            color: var(--primary-color) !important;
+        }
+        
+        .logout-btn {
+            color: var(--dark-color) !important;
+            font-weight: 500;
+            margin: 0 0.5rem;
+            padding: 0.5rem 1rem !important;
+            border-radius: 8px;
+            background: none !important;
+            border: none !important;
+            text-decoration: none !important;
+        }
+        
+        .logout-btn:hover {
+            background: rgba(239, 68, 68, 0.1) !important;
+            color: var(--danger-color) !important;
+        }
+        
+        .user-avatar {
+            border: 2px solid rgba(37, 99, 235, 0.3);
+            transition: border-color 0.3s ease;
+        }
+        
+        .user-info:hover .user-avatar {
+            border-color: var(--primary-color);
+        }
+        
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.5rem;
+        }
+        
+        .main-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: none;
+            border-radius: 20px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            overflow: hidden;
+        }
+        
+        .header-section {
+            background: linear-gradient(135deg, var(--primary-color), #3b82f6);
+            color: white;
+            padding: 2rem;
+            margin: -1.5rem -1.5rem 2rem -1.5rem;
+        }
+        
+        .stats-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 1.5rem;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+        
+        .stats-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        .dashboard-card {
+            margin-bottom: 2rem;
+        }
+        
+        .dashboard-card .card {
+            border: none;
+            border-radius: 15px;
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+  
+        
+        .stat-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .btn-modern {
+            border-radius: 12px;
+            padding: 0.875rem 2rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+          .btn-modern:hover {
+            text-decoration: none;
+        }
+        
+        .btn-primary-modern {
+            background: linear-gradient(135deg, var(--primary-color), #3b82f6);
+            color: white;
+            box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.3);
+        }
+  
+        
+        .quick-access-item {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            text-decoration: none;
+            color: var(--dark-color);
+            transition: all 0.3s ease;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+          .quick-access-item:hover {
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+        
+        .quick-access-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+        }
+        
+        @media (max-width: 768px) {
+            .header-section {
+                padding: 1.5rem;
+                margin: -1rem -1rem 1.5rem -1rem;
+            }
+            
+            .dashboard-card .card-body {
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>    <nav class="navbar navbar-expand-lg navbar-modern">
+        <div class="container">
+            <a class="navbar-brand" href="/">ZOOG</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <div class="navbar-nav ms-auto">
+                    <a class="nav-link active" href="/">Painel</a>
+                    <a class="nav-link" href="/motos">Gestão de Motos</a>
+                    <a class="nav-link" href="/usuario">Perfil</a>
+                    <a class="nav-link" href="/sobre">Sobre</a>
+                    
+                    <!-- Avatar do usuário GitHub (se logado via OAuth2) -->
+                    <div th:if="${userAvatar}" class="nav-link d-flex align-items-center user-info">
+                        <img th:src="${userAvatar}" 
+                             th:alt="${userName}" 
+                             class="rounded-circle me-2 user-avatar" 
+                             style="width: 32px; height: 32px;">
+                        <span th:text="${userName ?: userLogin}" class="text-truncate" style="max-width: 100px;"></span>
+                    </div>
+                    
+                    <!-- Botão de logout -->
+                    <form th:action="@{/logout}" method="post" class="d-inline">
+                        <button type="submit" class="logout-btn">Sair</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </nav><div class="container mt-5">
+        <div class="main-card">
+            <div class="header-section">                <div class="text-center">
+                    <h1 class="h2 mb-2">Dashboard Zoog</h1>
+                    <p class="mb-0 opacity-75">Bem-vindo!</p>
+                </div>
+            </div>
+
+            <!-- Dashboard Cards -->
+            <div class="px-4 pb-4">
+                <div class="row g-4 mb-5">
+                    <div class="col-lg-3 col-md-6 dashboard-card">
+                        <div class="card bg-primary text-white h-100">
+                            <div class="card-body d-flex align-items-center">
+                                <div class="stat-icon me-3">
+                                    <i class="fas fa-motorcycle"></i>
+                                </div>
+                                <div>
+                                    <h6 class="card-title mb-1">Total de Motos</h6>
+                                    <h2 class="mb-0" th:text="${totalMotos}">4</h2>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-lg-3 col-md-6 dashboard-card">
+                        <div class="card bg-success text-white h-100">
+                            <div class="card-body d-flex align-items-center">
+                                <div class="stat-icon me-3">
+                                    <i class="fas fa-check-circle"></i>
+                                </div>
+                                <div>
+                                    <h6 class="card-title mb-1">Disponíveis</h6>
+                                    <h2 class="mb-0" th:text="${motosDisponiveis}">3</h2>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-lg-3 col-md-6 dashboard-card">
+                        <div class="card bg-warning text-white h-100">
+                            <div class="card-body d-flex align-items-center">
+                                <div class="stat-icon me-3">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                                <div>
+                                    <h6 class="card-title mb-1">Em Uso</h6>
+                                    <h2 class="mb-0" th:text="${motosEmUso}">1</h2>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-lg-3 col-md-6 dashboard-card">
+                        <div class="card bg-danger text-white h-100">
+                            <div class="card-body d-flex align-items-center">
+                                <div class="stat-icon me-3">
+                                    <i class="fas fa-tools"></i>
+                                </div>
+                                <div>
+                                    <h6 class="card-title mb-1">Manutenção</h6>
+                                    <h2 class="mb-0" th:text="${motosManutencao}">0</h2>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Acesso Rápido -->
+                <div class="row">
+                    <div class="col-12">
+                        <h4 class="mb-4 text-center">
+                            <i class="fas fa-rocket me-2"></i>
+                            Acesso Rápido
+                        </h4>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <a href="/motos" class="quick-access-item">
+                                    <div class="quick-access-icon bg-primary">
+                                        <i class="fas fa-motorcycle"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="mb-1">Gestão de Motos</h6>
+                                        <small class="text-muted">Gerencie sua frota de motocicletas</small>
+                                    </div>
+                                </a>
+                            </div>
+                            <div class="col-md-6">
+                                <a href="/usuario" class="quick-access-item">
+                                    <div class="quick-access-icon bg-success">
+                                        <i class="fas fa-user"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="mb-1">Perfil do Usuário</h6>
+                                        <small class="text-muted">Visualize e edite suas informações</small>
+                                    </div>
+                                </a>
+                            </div>
+                            <div class="col-md-6">
+                                <a href="/sobre" class="quick-access-item">
+                                    <div class="quick-access-icon bg-info">
+                                        <i class="fas fa-info-circle"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="mb-1">Sobre o Sistema</h6>
+                                        <small class="text-muted">Informações sobre o Zoog Mobile</small>
+                                    </div>
+                                </a>
+                            </div>
+                            <div class="col-md-6">
+                                <a href="/login" class="quick-access-item">
+                                    <div class="quick-access-icon bg-secondary">
+                                        <i class="fas fa-sign-out-alt"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="mb-1">Sair do Sistema</h6>
+                                        <small class="text-muted">Fazer logout com segurança</small>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

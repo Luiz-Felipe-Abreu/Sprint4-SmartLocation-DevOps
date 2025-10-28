@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adicionar Moto - Zoog</title>    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --secondary-color: #64748b;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --dark-color: #1e293b;
+            --light-color: #f8fafc;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .navbar-modern {
+            background: rgba(255, 255, 255, 0.95) !important;
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.5rem;
+            color: var(--primary-color) !important;
+        }
+        
+        .nav-link {
+            color: var(--dark-color) !important;
+            font-weight: 500;
+            margin: 0 0.5rem;
+            padding: 0.5rem 1rem !important;
+            border-radius: 8px;
+        }
+        
+        .nav-link:hover {
+            background: rgba(37, 99, 235, 0.1);
+            color: var(--primary-color) !important;
+        }
+        
+        .logout-btn {
+            color: var(--light-color) !important;
+            font-weight: 500;
+            margin: 0 0.5rem;
+            padding: 0.5rem 1rem !important;
+            border-radius: 8px;
+            background: none !important;
+            border: none !important;
+            text-decoration: none !important;
+        }
+        
+        .logout-btn:hover {
+            background: rgba(239, 68, 68, 0.1) !important;
+            color: var(--danger-color) !important;
+        }
+        
+        .user-avatar {
+            border: 2px solid rgba(37, 99, 235, 0.3);
+            transition: border-color 0.3s ease;
+        }
+        
+        .user-info:hover .user-avatar {
+            border-color: var(--primary-color);
+        }
+        
+        .main-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: none;
+            border-radius: 20px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            overflow: hidden;
+        }
+        
+        .card-header {
+            background: linear-gradient(135deg, var(--primary-color), #3b82f6);
+            color: white;
+            border: none;
+            padding: 2rem;
+            text-align: center;
+        }
+        
+        .card-header h3 {
+            margin: 0;
+            font-weight: 600;
+            font-size: 1.75rem;
+        }
+        
+        .card-body {
+            padding: 2.5rem;
+        }
+        
+        .form-label {
+            font-weight: 600;
+            color: var(--dark-color);
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .form-control, .form-select {
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 0.875rem 1rem;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.8);
+        }
+        
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+            background: white;
+        }
+        
+        .form-control.is-valid {
+            border-color: var(--success-color);
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+        }
+        
+        .form-control.is-invalid {
+            border-color: var(--danger-color);
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+        }
+        
+        .placa-validation-container {
+            position: relative;
+        }
+        
+        .validation-icon {
+            position: absolute;
+            top: 50%;
+            right: 12px;
+            transform: translateY(-50%);
+            z-index: 10;
+        }
+        
+        .btn {
+            border-radius: 12px;
+            padding: 0.875rem 2rem;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            border: none;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color), #3b82f6);
+            box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.3);
+        }
+  
+        
+        .btn-secondary {
+            background: var(--secondary-color);
+            color: white;
+        }
+          .btn-secondary:hover {
+            background: #475569;
+        }
+        
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+            font-weight: 600;
+            font-size: 0.875rem;
+        }
+        
+        .text-danger {
+            color: var(--danger-color) !important;
+            font-weight: 500;
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+        }
+  
+        
+        .form-group-modern {
+            position: relative;
+            margin-bottom: 2rem;
+        }
+        
+        .input-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--secondary-color);
+            z-index: 10;
+        }
+        
+        .form-control.with-icon {
+            padding-left: 3rem;
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
+        }
+        
+        @media (max-width: 768px) {
+            .card-body {
+                padding: 1.5rem;
+            }
+            
+            .card-header {
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>    <nav class="navbar navbar-expand-lg navbar-modern">
+        <div class="container">
+            <a class="navbar-brand" href="/">ZOOG</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <div class="navbar-nav ms-auto">
+                    <a class="nav-link" href="/">Painel</a>
+                    <a class="nav-link active" href="/motos">Gestão de Motos</a>
+                    <a class="nav-link" href="/usuario">Perfil</a>
+                    <a class="nav-link" href="/sobre">Sobre</a>
+                    
+                    <!-- Avatar do usuário GitHub (se logado via OAuth2) -->
+                    <div th:if="${userAvatar}" class="nav-link d-flex align-items-center user-info">
+                        <img th:src="${userAvatar}" 
+                             th:alt="${userName}" 
+                             class="rounded-circle me-2 user-avatar" 
+                             style="width: 32px; height: 32px;">
+                        <span th:text="${userName ?: userLogin}" class="text-truncate" style="max-width: 100px;"></span>
+                    </div>
+                    
+                    <!-- Botão de logout -->
+                    <form th:action="@{/logout}" method="post" class="d-inline">
+                        <button type="submit" class="logout-btn">Sair</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </nav><div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card main-card floating-animation">                    <div class="card-header">
+                        <h3 th:text="${moto.id != null ? 'Editar Moto' : 'Adicionar Nova Moto'}">Adicionar Nova Moto</h3>
+                        <p class="mb-0 mt-2 opacity-75">Preencha os dados da motocicleta</p>
+                    </div>
+                    <div class="card-body">
+                        <form th:action="@{/motos/save}" method="post" th:object="${moto}">
+                            <input type="hidden" th:field="*{id}">
+                            <input type="hidden" th:field="*{createdAt}">
+                              <div class="form-group-modern">
+                                <label for="modelo" class="form-label">
+                                    Modelo da Moto
+                                </label>
+                                <input type="text" class="form-control" th:field="*{modelo}" id="modelo" 
+                                       placeholder="Ex: Honda CG 160, Yamaha Factor, Suzuki Yes">
+                                <div th:if="${#fields.hasErrors('modelo')}" class="text-danger">
+                                    <span th:each="error : ${#fields.errors('modelo')}" th:text="${error}"></span>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group-modern">
+                                <label for="placa" class="form-label">
+                                    Placa da Motocicleta
+                                </label>
+                                <div class="position-relative">
+                                    <input type="text" class="form-control" th:field="*{placa}" id="placa" 
+                                           placeholder="AAA-0000" maxlength="8" style="text-transform: uppercase;">
+                                    <div id="placa-loading" class="position-absolute top-50 end-0 translate-middle-y me-3" style="display: none;">
+                                        <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
+                                    </div>
+                                    <div id="placa-check" class="position-absolute top-50 end-0 translate-middle-y me-3" style="display: none;">
+                                        <i class="fas fa-check text-success"></i>
+                                    </div>
+                                    <div id="placa-error-icon" class="position-absolute top-50 end-0 translate-middle-y me-3" style="display: none;">
+                                        <i class="fas fa-times text-danger"></i>
+                                    </div>
+                                </div>
+                                <small class="text-muted">Formato: ABC-1234</small>
+                                <div id="placa-validation-message" class="text-success mt-1" style="display: none; font-size: 0.875rem;"></div>
+                                <div th:if="${#fields.hasErrors('placa')}" class="text-danger">
+                                    <span th:each="error : ${#fields.errors('placa')}" th:text="${error}"></span>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group-modern">
+                                <label for="status" class="form-label">
+                                    Status da Moto
+                                </label>
+                                <select class="form-select" th:field="*{status}" id="status">
+                                    <option value="">Selecione o status...</option>
+                                    <option value="DISPONIVEL">Disponível para uso</option>
+                                    <option value="EM_USO">Em uso no momento</option>
+                                    <option value="MANUTENCAO">Em manutenção</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group-modern">
+                                <label for="observacoes" class="form-label">
+                                    Observações
+                                </label>
+                                <textarea class="form-control" th:field="*{observacoes}" id="observacoes" 
+                                          rows="4" placeholder="Adicione observações importantes sobre a moto (opcional)..."></textarea>
+                                <small class="text-muted">Máximo 500 caracteres</small>
+                            </div>
+                            
+                            <div class="d-flex gap-3 justify-content-end mt-4">
+                                <a href="/motos" class="btn btn-secondary">
+                                    Cancelar
+                                </a>
+                                <button type="submit" class="btn btn-primary">
+                                    <span th:text="${moto.id != null ? 'Atualizar Moto' : 'Adicionar Moto'}">Adicionar Moto</span>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                
+                <!-- Card com dicas -->
+                <div class="card mt-4" style="background: rgba(255, 255, 255, 0.9); border-radius: 15px; border: none;">
+                    <div class="card-body text-center">
+                        <h6 class="text-muted mb-3">
+                            <i class="fas fa-lightbulb me-2"></i>
+                            Dicas importantes
+                        </h6>
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <div class="p-3 rounded" style="background: rgba(16, 185, 129, 0.1);">
+                                    <i class="fas fa-check-circle text-success mb-2"></i>
+                                    <p class="small mb-0 text-success fw-semibold">Verifique a placa</p>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="p-3 rounded" style="background: rgba(245, 158, 11, 0.1);">
+                                    <i class="fas fa-tools text-warning mb-2"></i>
+                                    <p class="small mb-0 text-warning fw-semibold">Status correto</p>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="p-3 rounded" style="background: rgba(37, 99, 235, 0.1);">
+                                    <i class="fas fa-motorcycle text-primary mb-2"></i>
+                                    <p class="small mb-0 text-primary fw-semibold">Modelo completo</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Formatação automática da placa e validação em tempo real
+        let placaTimeout;
+        const placaInput = document.getElementById('placa');
+        const placaLoading = document.getElementById('placa-loading');
+        const placaCheck = document.getElementById('placa-check');
+        const placaErrorIcon = document.getElementById('placa-error-icon');
+        const placaMessage = document.getElementById('placa-validation-message');
+        const motoId = document.querySelector('input[name="id"]').value;
+        
+        placaInput.addEventListener('input', function(e) {
+            let value = e.target.value.replace(/[^A-Za-z0-9]/g, '').toUpperCase();
+            if (value.length > 3) {
+                value = value.substring(0, 3) + '-' + value.substring(3, 7);
+            }
+            e.target.value = value;
+            
+            // Limpar timeout anterior
+            clearTimeout(placaTimeout);
+            
+            // Resetar indicadores visuais
+            hideAllPlacaIndicators();
+            
+            // Se a placa tem formato válido, fazer verificação
+            if (value.length === 8 && value.includes('-')) {
+                placaLoading.style.display = 'block';
+                
+                placaTimeout = setTimeout(() => {
+                    verificarPlacaDisponibilidade(value, motoId);
+                }, 500); // Aguarda 500ms após parar de digitar
+            }
+        });
+        
+        function hideAllPlacaIndicators() {
+            placaLoading.style.display = 'none';
+            placaCheck.style.display = 'none';
+            placaErrorIcon.style.display = 'none';
+            placaMessage.style.display = 'none';
+            placaInput.classList.remove('is-valid', 'is-invalid');
+        }
+        
+        function verificarPlacaDisponibilidade(placa, motoId) {
+            const url = `/motos/verificar-placa?placa=${encodeURIComponent(placa)}${motoId ? `&motoId=${motoId}` : ''}`;
+            
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    placaLoading.style.display = 'none';
+                    
+                    if (data.existe) {
+                        // Placa já existe
+                        placaErrorIcon.style.display = 'block';
+                        placaInput.classList.add('is-invalid');
+                        placaInput.classList.remove('is-valid');
+                        placaMessage.textContent = data.mensagem;
+                        placaMessage.className = 'text-danger mt-1';
+                        placaMessage.style.display = 'block';
+                    } else {
+                        // Placa disponível
+                        placaCheck.style.display = 'block';
+                        placaInput.classList.add('is-valid');
+                        placaInput.classList.remove('is-invalid');
+                        placaMessage.textContent = data.mensagem;
+                        placaMessage.className = 'text-success mt-1';
+                        placaMessage.style.display = 'block';
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro ao verificar placa:', error);
+                    placaLoading.style.display = 'none';
+                });
+        }
+        
+        // Animação de focus nos inputs
+        document.querySelectorAll('.form-control, .form-select').forEach(input => {
+            input.addEventListener('focus', function() {
+                this.parentElement.style.transform = 'scale(1.02)';
+                this.parentElement.style.transition = 'transform 0.2s ease';
+            });
+            
+            input.addEventListener('blur', function() {
+                this.parentElement.style.transform = 'scale(1)';
+            });
+        });
+        
+        // Contador de caracteres para observações
+        const observacoesTextarea = document.getElementById('observacoes');
+        if (observacoesTextarea) {
+            const maxLength = 500;
+            
+            function updateCounter() {
+                const currentLength = observacoesTextarea.value.length;
+                const remaining = maxLength - currentLength;
+                
+                let counterElement = document.getElementById('char-counter');
+                if (!counterElement) {
+                    counterElement = document.createElement('small');
+                    counterElement.id = 'char-counter';
+                    counterElement.className = 'text-muted';
+                    observacoesTextarea.parentNode.appendChild(counterElement);
+                }
+                
+                counterElement.textContent = `${currentLength}/${maxLength} caracteres`;
+                counterElement.className = remaining < 50 ? 'text-warning' : 'text-muted';
+            }
+            
+            observacoesTextarea.addEventListener('input', updateCounter);
+            observacoesTextarea.maxLength = maxLength;
+            updateCounter();
+        }
+        
+        // Validação visual em tempo real
+        document.querySelectorAll('.form-control, .form-select').forEach(input => {
+            if (input.id !== 'placa') { // Não aplicar para placa pois já tem validação específica
+                input.addEventListener('input', function() {
+                    if (this.value.trim() !== '') {
+                        this.classList.add('is-valid');
+                        this.classList.remove('is-invalid');
+                    } else if (this.required) {
+                        this.classList.add('is-invalid');
+                        this.classList.remove('is-valid');
+                    }
+                });
+            }
+        });
+        
+        // Validação no submit do formulário
+        document.querySelector('form').addEventListener('submit', function(e) {
+            const placaInput = document.getElementById('placa');
+            
+            // Verificar se a placa está marcada como inválida
+            if (placaInput.classList.contains('is-invalid')) {
+                e.preventDefault();
+                
+                // Mostrar alerta personalizado
+                showAlert('Erro de Validação', 'Por favor, corrija os erros antes de continuar. A placa informada já está cadastrada no sistema.', 'error');
+                
+                // Focar no campo da placa
+                placaInput.focus();
+                
+                // Adicionar efeito visual
+                placaInput.style.animation = 'shake 0.5s ease-in-out';
+                setTimeout(() => {
+                    placaInput.style.animation = '';
+                }, 500);
+                
+                return false;
+            }
+        });
+        
+        // Função para mostrar alertas personalizados
+        function showAlert(title, message, type) {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type === 'error' ? 'danger' : 'success'} alert-dismissible fade show position-fixed`;
+            alertDiv.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+            
+            alertDiv.innerHTML = `
+                <strong>${title}</strong><br>
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            
+            document.body.appendChild(alertDiv);
+            
+            // Remover automaticamente após 5 segundos
+            setTimeout(() => {
+                if (alertDiv.parentNode) {
+                    alertDiv.remove();
+                }
+            }, 5000);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,9 @@
+services:
+  postgres:
+    image: 'postgres:latest'
+    environment:
+      - 'POSTGRES_DB=smartlocation'
+      - 'POSTGRES_PASSWORD=smartlocation'
+      - 'POSTGRES_USER=smartlocation'
+    ports:
+      - '5432:5432'
