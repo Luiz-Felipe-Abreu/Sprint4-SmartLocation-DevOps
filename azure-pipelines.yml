@@ -1,19 +1,150 @@
-# Starter pipeline
-# Start with a minimal pipeline that you can customize to build and deploy your code.
-# Add steps that build, run tests, deploy, and more:
-# https://aka.ms/yaml
-
 trigger:
-- main
+  - main
 
-pool:
-  vmImage: ubuntu-latest
+variables:
+  GRADLE_USER_HOME: $(Pipeline.Workspace)/.gradle
+  AZURE_LOCATION: eastus
+  RESOURCE_GROUP: rg-smartlocation
+  ACR_NAME: acrsmartlocation
+  ACR_LOGIN_SERVER: acrsmartlocation.azurecr.io
+  IMAGE_NAME: appsmartlocation
+  IMAGE_TAG: latest
+  RM: "555197"
+  azureSubscription: AzureSmartLocation
+  DB_NAME: smartlocation
+  DB_USER: smartlocation
 
-steps:
-- script: echo Hello, world!
-  displayName: 'Run a one-line script'
+stages:
+  # ============================================================
+  # CI - Build & Test
+  # ============================================================
+  - stage: Build
+    displayName: "CI - Build e Testes"
+    jobs:
+      - job: gradleBuild
+        displayName: "Gradle Build"
+        pool:
+          vmImage: ubuntu-latest
 
-- script: |
-    echo Add other tasks to build, test, and deploy your project.
-    echo See https://aka.ms/yaml
-  displayName: 'Run a multi-line script'
+        steps:
+          - task: Cache@2
+            inputs:
+              key: 'gradle | "$(Agent.OS)" | **/*.gradle*'
+              restoreKeys: |
+                gradle | "$(Agent.OS)"
+                gradle
+              path: $(GRADLE_USER_HOME)
+            displayName: "Cache Gradle"
+
+          - task: Gradle@4
+            inputs:
+              gradleWrapperFile: "gradlew"
+              tasks: "build"
+              options: "--build-cache -Dspring.profiles.active=test"
+              publishJUnitResults: true
+              testResultsFiles: "**/TEST-*.xml"
+              javaHomeOption: "JDKVersion"
+              sonarQubeRunAnalysis: false
+            displayName: "Executar build com Gradle"
+
+          - script: ./gradlew --stop
+            displayName: "Finalizar daemon Gradle"
+
+          - task: CopyFiles@2
+            displayName: "Copiar artefatos para staging"
+            inputs:
+              SourceFolder: "$(System.DefaultWorkingDirectory)"
+              Contents: "**/build/libs/*SNAPSHOT.jar"
+              TargetFolder: $(Build.ArtifactStagingDirectory)
+
+          - publish: $(Build.ArtifactStagingDirectory)
+            artifact: SmartLocationApp
+
+      - job: BuildAndPushImage
+        displayName: "Build e Push da imagem Docker"
+        pool:
+          vmImage: ubuntu-latest
+        dependsOn: gradleBuild
+        condition: succeeded()
+        steps:
+          - task: Docker@2
+            inputs:
+              command: login
+              containerRegistry: smartlocationservice556859
+            displayName: "Login no ACR"
+
+          - task: Docker@2
+            inputs:
+              command: buildAndPush
+              repository: appsmartlocation
+              tags: |
+                latest
+                $(Build.BuildId)
+            displayName: "Build e Push da imagem Docker"
+
+  # ============================================================
+  # CD - Deploy (Azure Container Instances)
+  # ============================================================
+  - stage: Deploy_ACI
+    displayName: "CD - Deploy para Azure Container Instances"
+    dependsOn: Build
+    condition: succeeded()
+    jobs:
+      - job: Deploy
+        displayName: "Deploy App para ACI"
+        pool:
+          vmImage: 'ubuntu-latest'
+
+        steps:
+          - checkout: none
+
+          - task: AzureCLI@2
+            displayName: "Executar Deploy no ACI"
+            inputs:
+              azureSubscription: '$(azureSubscription)'
+              scriptType: bash
+              scriptLocation: inlineScript
+              inlineScript: |
+                set -euo pipefail
+
+                echo "🌎 Usando resource group: $(RESOURCE_GROUP) em $(AZURE_LOCATION)"
+
+                # Obter credenciais do ACR
+                ACR_USERNAME=$(ACR_USERNAME)
+                ACR_PASSWORD=$(ACR_PASSWORD)
+
+                APP_CONTAINER_NAME="aci-app-smartlocation-rm$(RM)"
+                APP_DNS_LABEL="aci-app-smartlocation-rm$(RM)"
+                APP_IMAGE="$(ACR_LOGIN_SERVER)/$(IMAGE_NAME):$(IMAGE_TAG)"
+
+                echo "🧹 Limpando container anterior (se existir)..."
+                az container delete --resource-group "$(RESOURCE_GROUP)" --name "$APP_CONTAINER_NAME" --yes || true
+                sleep 10
+
+                echo "🚀 Criando novo container com imagem: $APP_IMAGE"
+                az container create \
+                  --resource-group "$(RESOURCE_GROUP)" \
+                  --name "$APP_CONTAINER_NAME" \
+                  --image "$APP_IMAGE" \
+                  --cpu 1 --memory 1 \
+                  --registry-login-server "$(ACR_LOGIN_SERVER)" \
+                  --registry-username "$ACR_USERNAME" \
+                  --registry-password "$ACR_PASSWORD" \
+                  --environment-variables \
+                    SPRING_DATASOURCE_URL="$(SPRING_DATASOURCE_URL)" \
+                    SPRING_DATASOURCE_USERNAME="$(DB_USER)" \
+                    SPRING_DATASOURCE_PASSWORD="$(DB_PASSWORD)" \
+                    SPRING_JPA_HIBERNATE_DDL_AUTO=update \
+                    SPRING_FLYWAY_URL="$(SPRING_DATASOURCE_URL)" \
+                    SPRING_FLYWAY_USER="$(DB_USER)" \
+                    SPRING_FLYWAY_PASSWORD="$(DB_PASSWORD)" \
+                    GITHUB_CLIENT_ID="$(GITHUB_CLIENT_ID)" \
+                    GITHUB_CLIENT_SECRET="$(GITHUB_CLIENT_SECRET)" \
+                  --ports 8080 \
+                  --os-type Linux \
+                  --dns-name-label "$APP_DNS_LABEL" \
+                  --location "$(AZURE_LOCATION)" \
+                  --restart-policy Always
+
+                APP_URL="http://$APP_DNS_LABEL.$(AZURE_LOCATION).azurecontainer.io:8080"
+                echo "✅ Aplicação SmartLocation implantada com sucesso em: $APP_URL"
