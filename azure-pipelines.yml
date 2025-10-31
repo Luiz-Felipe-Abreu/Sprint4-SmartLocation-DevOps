@@ -70,7 +70,7 @@ stages:
           - task: Docker@2
             inputs:
               command: login
-              containerRegistry: smartlocationservice556859
+              containerRegistry: smartlocationservice
             displayName: "Login no ACR"
 
           - task: Docker@2
