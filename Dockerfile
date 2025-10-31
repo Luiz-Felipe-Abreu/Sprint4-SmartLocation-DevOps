@@ -3,7 +3,7 @@ FROM eclipse-temurin:17-jdk-alpine AS build
 WORKDIR /app
 COPY . .
 # Build without tests for faster container build; change to 'build' to run tests
-RUN ./gradlew clean bootJar --no-daemon
+RUN chmod +x ./gradlew && ./gradlew clean bootJar --no-daemon
 
 # ---------- Runtime stage ----------
 FROM eclipse-temurin:17-jre-alpine AS runtime
