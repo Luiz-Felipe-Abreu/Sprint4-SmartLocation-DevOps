@@ -76,7 +76,9 @@ stages:
           - task: Docker@2
             inputs:
               command: buildAndPush
+              containerRegistry: smartlocationservice
               repository: appsmartlocation
+              Dockerfile: '**/Dockerfile'
               tags: |
                 latest
                 $(Build.BuildId)
