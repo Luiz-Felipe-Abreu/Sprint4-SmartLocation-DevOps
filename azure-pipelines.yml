@@ -111,9 +111,10 @@ stages:
 
                 echo "🌎 Usando resource group: $(RESOURCE_GROUP) em $(AZURE_LOCATION)"
 
-                # Obter credenciais do ACR
-                ACR_USERNAME=$(ACR_USERNAME)
-                ACR_PASSWORD=$(ACR_PASSWORD)
+                # Obter credenciais do ACR dinamicamente
+                echo "🔐 Obtendo credenciais do ACR..."
+                ACR_USERNAME=$(az acr credential show -n "$(ACR_NAME)" --query username -o tsv)
+                ACR_PASSWORD=$(az acr credential show -n "$(ACR_NAME)" --query "passwords[0].value" -o tsv)
 
                 APP_CONTAINER_NAME="aci-app-smartlocation-rm$(RM)"
                 APP_DNS_LABEL="aci-app-smartlocation-rm$(RM)"
@@ -129,7 +130,7 @@ stages:
                   --name "$APP_CONTAINER_NAME" \
                   --image "$APP_IMAGE" \
                   --cpu 1 --memory 1 \
-                  --registry-login-server "$(ACR_LOGIN_SERVER)" \
+                    --registry-login-server "$(ACR_LOGIN_SERVER)" \
                   --registry-username "$ACR_USERNAME" \
                   --registry-password "$ACR_PASSWORD" \
                   --environment-variables \
