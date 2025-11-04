@@ -1,17 +1,21 @@
-# Imagem base oficial do Python
-FROM python:3.11-slim
-
-# Define o diretório de trabalho dentro do container
+# ---------- Build stage ----------
+FROM eclipse-temurin:17-jdk-alpine AS build
 WORKDIR /app
+COPY . .
+# Build without tests for faster container build; change to 'build' to run tests
+RUN chmod +x ./gradlew && ./gradlew clean bootJar --no-daemon
 
-# Copia o código da aplicação
-COPY app.py .
+# ---------- Runtime stage ----------
+FROM eclipse-temurin:17-jre-alpine AS runtime
 
-# Instala o Flask
-RUN pip install flask
+# Create non-root user
+RUN addgroup -S app && adduser -S app -G app
+USER app
 
-# Define a porta padrão que o container vai expor
-EXPOSE 5000
+WORKDIR /app
+EXPOSE 8080
 
-# Comando para rodar a aplicação
-CMD ["python", "app.py"]
+# Copy the fat jar from build stage
+COPY --from=build /app/build/libs/*SNAPSHOT.jar /app/app.jar
+
+ENTRYPOINT ["java","-jar","/app/app.jar"]
