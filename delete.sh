@@ -1,1 +1,1 @@
- az group delete --name rg-cp4-rm555197 --yes --no-wait
+ az group delete --name rg-smartlocation --yes --no-wait

@@ -4,14 +4,15 @@
 
 ![Diagrama de Arquitetura Smart Location](image/Diagrama%20de%20arquitetura.png)
 
-*Arquitetura ACR + ACI implementada no Microsoft Azure*
+*Arquitetura completa com CI/CD implementada no Azure DevOps e Microsoft Azure*
 
 ### Componentes da Arquitetura:
-- **GitHub Repository**: Código fonte e scripts de automação
-- **Azure Container Registry (ACR)**: Registro de imagens Docker
-- **Azure Container Instances (ACI)**: Execução dos containers
-- **PostgreSQL**: Banco de dados em container
-- **GitHub OAuth**: Sistema de autenticação
+- **GitHub Repository**: Código fonte e versionamento
+- **Azure DevOps**: Orquestração de pipelines CI/CD
+- **Azure Container Registry (ACR)**: Registro privado de imagens Docker
+- **Azure Container Instances (ACI)**: Execução dos containers da aplicação
+- **PostgreSQL em Container**: Banco de dados relacional em nuvem
+- **GitHub OAuth**: Sistema de autenticação social
 
 ---
 
@@ -43,74 +44,176 @@ Desenvolvemos o **Smart Location**, uma plataforma web robusta que oferece:
 - **Melhoria na experiência do usuário** com disponibilidade em tempo real
 - **Tomada de decisão assertiva** com dashboards analíticos
 - **Escalabilidade garantida** com arquitetura em nuvem
+- **Deploy automatizado** com pipeline CI/CD reduzindo tempo de entrega
 
-## 🛠️ Tecnologias Utilizadas
+---
+
+## 🛠️ Stack Tecnológica
 
 ### Backend
 - **Java 17** - Linguagem principal
 - **Spring Boot 3.x** - Framework web
 - **Spring Security** - Autenticação e autorização
 - **Spring Data JPA** - Persistência de dados
-- **Thymeleaf** - Template engine
-- **Flyway** - Controle de versão do banco
+- **Thymeleaf** - Template engine server-side
+- **Flyway** - Controle de versão e migração do banco
 
 ### Banco de Dados
-- **PostgreSQL 16** - Banco relacional principal
-- **Flyway Migrations** - Versionamento do schema
+- **PostgreSQL 17** - Banco relacional em container (Alpine Linux)
+- **Azure Container Instances** - Hospedagem do banco de dados em nuvem
+- **Flyway Migrations** - Versionamento automático do schema
 
 ### DevOps & Cloud
-- **Docker** - Containerização
-- **Azure Container Registry (ACR)** - Registro de imagens
-- **Azure Container Instances (ACI)** - Orquestração de containers
-- **Azure CLI** - Automação de deploy
+- **Docker** - Containerização da aplicação e banco de dados
+- **Azure Container Registry (ACR)** - Registro privado de imagens Docker
+- **Azure Container Instances (ACI)** - Execução de containers em nuvem
+- **Azure DevOps Pipelines** - Orquestração CI/CD
+- **Azure CLI** - Automação de infraestrutura
+- **Gradle** - Build e gerenciamento de dependências
+- **GitHub** - Controle de versão (SCM)
 - **GitHub OAuth** - Autenticação social
 
 ### Frontend
-- **Bootstrap 5** - Framework CSS
-- **JavaScript ES6+** - Interatividade
-- **Thymeleaf** - Renderização server-side
+- **Bootstrap 5** - Framework CSS responsivo
+- **JavaScript ES6+** - Interatividade do cliente
+- **Thymeleaf** - Renderização server-side com Spring
 
-## 🚀 Como Rodar o Projeto
+---
 
-### Pré-requisitos
+## 🔄 Fluxo CI/CD com Azure DevOps
 
-1. **Docker Desktop** instalado e **rodando**
-2. **Azure CLI** configurado e logado (`az login`)
-3. **Git Bash** ou terminal compatível
-4. **Credenciais GitHub OAuth** configuradas
+### Pipeline de Integração Contínua (CI)
 
-### Configuração GitHub OAuth
+A pipeline CI é **automaticamente disparada** a cada push na branch `main` e executa os seguintes estágios:
 
-⚠️ **IMPORTANTE**: Antes de executar, configure sua GitHub OAuth App:
+1. **Cache de Dependências Gradle**
+   - Otimiza o build reutilizando dependências já baixadas
+   - Reduz tempo de execução da pipeline
 
-1. Acesse: https://github.com/settings/applications/new
-2. Preencha:
-   - **Application name**: `Smart Location App`
-   - **Homepage URL**: `http://app-cp4-rm555197.brazilsouth.azurecontainer.io:8080`
-   - **Authorization callback URL**: `http://app-cp4-rm555197.brazilsouth.azurecontainer.io:8080/login/oauth2/code/github`
-3. Anote o **Client ID** e **Client Secret**
+2. **Build da Aplicação**
+   - Compila o código Java com Gradle
+   - Executa testes unitários automatizados
+   - Gera relatórios JUnit de cobertura
+   - Publica resultados dos testes no Azure DevOps
 
-### Passos para Execução
+3. **Build da Imagem Docker**
+   - Constrói imagem Docker da aplicação
+   - Faz push para Azure Container Registry (ACR)
+   - Tageia com `latest` e número do build
+   - Utiliza Service Connection segura
+
+4. **Publicação de Artefatos**
+   - Gera arquivo JAR executável
+   - Publica artefato no Azure DevOps
+   - Disponibiliza para estágio de deploy
+
+### Pipeline de Deploy Contínuo (CD)
+
+O deploy é **automaticamente disparado** após a conclusão bem-sucedida do CI:
+
+1. **Obtenção de Credenciais**
+   - Recupera credenciais do ACR dinamicamente
+   - Utiliza Azure CLI com Service Principal
+
+2. **Limpeza de Ambiente**
+   - Remove container anterior (se existir)
+   - Garante estado limpo para novo deploy
+
+3. **Provisionamento no ACI**
+   - Cria novo Azure Container Instance
+   - Configura variáveis de ambiente seguras
+   - Injeta credenciais de banco de dados
+   - Configura autenticação GitHub OAuth
+   - Expõe aplicação na porta 8080
+
+4. **Validação do Deploy**
+   - Verifica status do container
+   - Exibe URL de acesso da aplicação
+
+### 🔐 Segurança e Boas Práticas
+
+- **Variáveis Secretas**: Credenciais armazenadas como variáveis secretas no Azure DevOps
+- **Service Connections**: Autenticação segura com Azure usando Service Principal
+- **Container Registry Privado**: Imagens armazenadas em ACR privado
+- **Restart Policy**: Containers configurados com política `Always` para alta disponibilidade
+- **Separação de Ambientes**: Diferentes configurações para CI e CD
+
+
+---
+
+## 🗄️ Banco de Dados em Nuvem
+
+### PostgreSQL em Azure Container Instance
+
+O projeto utiliza **PostgreSQL 17 Alpine** em um container dedicado no Azure:
+
+#### Características:
+- **Tipo**: Banco de dados relacional em container
+- **Provedor**: Microsoft Azure (ACI)
+- **Versão**: PostgreSQL 17 com Alpine Linux
+- **Alta Disponibilidade**: Restart policy configurado como `Always`
+- **Recursos**: 1 CPU core e 2GB de memória RAM
+- **Acesso**: FQDN público com porta 5432 exposta
+- **Persistência**: Volume gerenciado pelo ACI
+
+#### Configuração:
+```yaml
+Host: aci-db-smartlocation-rm555197.eastus.azurecontainer.io
+Port: 5432
+Database: smartlocation
+Username: smartlocation
+Password: [Protegido por variável secreta no Azure DevOps]
+```
+
+---
+
+
+### Variáveis de Ambiente Protegidas
+
+As seguintes variáveis são configuradas como **secretas** no Azure DevOps:
+
+- `SPRING_DATASOURCE_URL`: URL de conexão JDBC do PostgreSQL
+- `DB_PASSWORD`: Senha do banco de dados
+- `GITHUB_CLIENT_ID`: Client ID da OAuth App do GitHub
+- `GITHUB_CLIENT_SECRET`: Client Secret da OAuth App do GitHub
+- `ACR_NAME`: Nome do Azure Container Registry
+- `azureSubscription`: Service Connection com a subscription Azure
+
+---
+
+## 🚀 Como Executar o Projeto
+
+### Opção 1: Via Azure DevOps (Recomendado)
+
+1. **Faça uma alteração no código**
+2. **Commit e push para branch `main`**
+   ```bash
+   git add .
+   git commit -m "feat: nova funcionalidade"
+   git push origin main
+   ```
+3. **Aguarde a pipeline executar automaticamente**
+4. **Acesse a aplicação pela URL fornecida ao final do deploy**
+
+
+#### Passos para Setup Manual
 
 ```bash
 # 1. Clone o repositório
-git clone <seu-repositorio>
-cd challengeDevOps3
+git clone https://github.com/Luiz-Felipe-Abreu/Sprint4-SmartLocation-DevOps.git
+cd Sprint4-SmartLocation-DevOps
 
-# 2. Configure as variáveis OAuth (substitua pelos seus valores)
-export GITHUB_CLIENT_ID='seu-client-id-aqui'
-export GITHUB_CLIENT_SECRET='seu-client-secret-aqui'
+# 2. Execute o script de setup (cria ACR e banco PostgreSQL)
+bash setup.sh
 
-# 3. Faça login no Azure
-az login
+# 3. Configure as variáveis OAuth no Azure DevOps Library
+# Vá em: Pipelines → Library → Variable Groups
+# Adicione GITHUB_CLIENT_ID e GITHUB_CLIENT_SECRET
 
-# 4. Execute o build da aplicação (cria ACR e faz push da imagem)
-bash build.sh
+# 4. Execute a pipeline manualmente ou faça push no repositório
+git push origin main
 
-# 5. Execute o deploy (cria containers no ACI)
-bash deploy.sh
-
-# 6. Para limpar os recursos após os testes
+#5. Excluir grupo de recurso criado
 bash delete.sh
 ```
 
@@ -118,52 +221,62 @@ bash delete.sh
 
 Após o deploy bem-sucedido, acesse:
 
-- **🌐 Aplicação Web**: `http://app-cp4-rm555197.brazilsouth.azurecontainer.io:8080`
-- **🗄️ Banco PostgreSQL**: `db-cp4-rm555197.brazilsouth.azurecontainer.io:5432`
+- **🌐 Aplicação Web**: `http://aci-app-smartlocation-rm555197.eastus.azurecontainer.io:8080`
+- **🗄️ Banco PostgreSQL**: `aci-db-smartlocation-rm555197.eastus.azurecontainer.io:5432`
 
 ### Credenciais do Banco
 
 ```
-Host: db-cp4-rm555197.brazilsouth.azurecontainer.io
+Host: aci-db-smartlocation-rm555197.eastus.azurecontainer.io
 Port: 5432
 Database: smartlocation
 Username: smartlocation
 Password: smartlocation
 ```
 
-## 📊 Rotas Principais
-
-### Web Interface
-- **`/`** - Dashboard principal
-- **`/users`** - Listagem de usuários
-- **`/users/new`** - Cadastro de usuário
-- **`/users/edit/{id}`** - Edição de usuário
-- **`/login`** - Autenticação via GitHub
-
-### API REST
-- **`GET /api/users`** - Listar usuários
-- **`POST /api/users`** - Criar usuário
-- **`PUT /api/users/{id}`** - Atualizar usuário
-- **`DELETE /api/users/{id}`** - Excluir usuário
-
 ---
 
 ## 👥 Equipe de Desenvolvimento
 
-- **Pedro Gomes** – RM553907  
-- **Luiz Felipe Abreu** – RM555197  
-- **Matheus Munuera** – RM557812  
+- **Pedro Gomes** – RM553907 - 2TDSA
+- **Luiz Felipe Abreu** – RM555197 - 2TDSA
+- **Matheus Munuera** – RM557812 - 2TDSA
 
+---
 
-Video Youtube: https://youtu.be/fLkKLK6BB30
+## 📹 Demonstração
+
+- **Vídeo YouTube**: https://youtu.be/fLkKLK6BB30
+- **Repositório GitHub**: [Link do repositório]
+- **Azure DevOps**: [Link do projeto]
 
 ---
 
 ## 📄 Licença
 
-Este projeto foi desenvolvido como parte do Challenge DevOps 2025 - FIAP.
+Este projeto foi desenvolvido como parte do **Challenge DevOps - Sprint 4** - FIAP 2025.
 
 ---
-# teste pipelinee
 
-*Smart Location - Transformando a mobilidade urbana através da tecnologia* 🚀
+## 🔍 Estrutura de Arquivos do Projeto
+
+```
+Sprint4-SmartLocation-DevOps/
+├── src/                          # Código-fonte da aplicação
+│   ├── main/
+│   │   ├── java/                 # Classes Java
+│   │   └── resources/            # Arquivos de configuração
+│   │       ├── db/migration/     # Scripts Flyway
+│   │       └── templates/        # Views Thymeleaf
+│   └── test/                     # Testes unitários
+├── azure-pipelines.yml           # Definição da pipeline CI/CD
+├── Dockerfile                    # Imagem Docker da aplicação
+├── setup.sh                      # Script de setup inicial do ambiente
+├── delete.sh                     # Script de limpeza de recursos
+├── build.gradle                  # Configuração Gradle
+└── README.md                     # Documentação (este arquivo)
+```
+
+---
+
+*Smart Location - Transformando a mobilidade urbana através da tecnologia e DevOps* 🚀
