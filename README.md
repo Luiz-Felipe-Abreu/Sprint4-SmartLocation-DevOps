@@ -246,9 +246,9 @@ Password: smartlocation
 
 ## 📹 Demonstração
 
-- **Vídeo YouTube**: https://youtu.be/fLkKLK6BB30
-- **Repositório GitHub**: [Link do repositório]
-- **Azure DevOps**: [Link do projeto]
+- **Vídeo YouTube**: https://www.youtube.com/watch?v=vGov11hSS5Q
+- **Repositório GitHub**: https://github.com/Luiz-Felipe-Abreu/Sprint4-SmartLocation-DevOps.git
+- **Azure DevOps**: https://dev.azure.com/RM555197/Sprint4-azure-DevOps
 
 ---
 
