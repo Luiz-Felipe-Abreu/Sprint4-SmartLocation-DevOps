@@ -2,7 +2,7 @@
 
 ## 🏗️ Arquitetura da Solução
 
-![Diagrama de Arquitetura Smart Location](image/Diagrama%20de%20arquitetura.png)
+![Diagrama de Arquitetura Smart Location](image/image.png)
 
 *Arquitetura completa com CI/CD implementada no Azure DevOps e Microsoft Azure*
 
